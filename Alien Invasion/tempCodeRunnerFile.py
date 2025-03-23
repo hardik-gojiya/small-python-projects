@@ -1,0 +1,1 @@
+self.ship.rect.x += 5
