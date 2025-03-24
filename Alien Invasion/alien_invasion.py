@@ -3,6 +3,7 @@ import pygame
 from setting import settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 
 class AlienInvasion:
@@ -18,18 +19,20 @@ class AlienInvasion:
         self.ship = Ship(self)
 
         self.bullet = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+        
+        self._create_fleet()
 
+    def _create_fleet(self):
+        alien = Alien(self)
+        self.aliens.add(alien)
+    
     def runGame(self):
         while True:
             self.check_events()
             self.ship.update()
-            self.bullet.update()
+            self.update_bullet()
             self.update_screen()
-
-        for bullet in self.bullet.copy():
-            if Bullet.rect.bottom <= 0:
-                self.bullet.remove(bullet)
-            print(len(self.bullet))
 
     def check_events(self):
         for event in pygame.event.get():
@@ -56,18 +59,27 @@ class AlienInvasion:
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
 
+    def update_bullet(self):
+        self.bullet.update()
+        for bullet in self.bullet.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullet.remove(bullet)
+
     def update_screen(self):
         self.screen.fill(self.settings.bg_color)
         self.ship.blitme()
 
         for bullet in self.bullet.sprites():
             bullet.draw()
-
+        
+        self.aliens.draw(self.screen)
         pygame.display.flip()
-
+        
+        
     def _fire_bullet(self):
-        new_bullet = Bullet(self)
-        self.bullet.add(new_bullet)
+        if len(self.bullet) < self.settings.bullet_allowed:
+            new_bullet = Bullet(self)
+            self.bullet.add(new_bullet)
 
 
 if __name__ == "__main__":
